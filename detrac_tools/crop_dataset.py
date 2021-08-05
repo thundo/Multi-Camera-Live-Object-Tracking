@@ -12,13 +12,13 @@ class CreateDataset:
         def __init__(self,
                      DETRAC_images,
                      DETRAC_annots,
-                     output_train,
+                     output_folder,
                      occlusion_threshold,
                      truncation_threshold,
                      occurrences):
             self.root_images = DETRAC_images
             self.root_annots = DETRAC_annots
-            self.output_folder = output_train
+            self.output_folder = output_folder
             self.occ_thresh = occlusion_threshold
             self.trunc_thresh = truncation_threshold
             self.no_of_occurrences = occurrences
@@ -105,12 +105,12 @@ class CreateDataset:
 
                                 # vehicle_type = attribute.attrib['vehicle_type']
                                 # truncation_ratio = attribute.attrib['truncation_ratio']
-                                image = Image.open(self.root_images + sequence + '/' + image_frame)
+                                image = Image.open(os.path.join(self.root_images + sequence, image_frame))
                                 image = image.crop(rectangle)
                                 image = image.resize(self.resize)
                                 market1501_id = str(int(target_id) + int(max_target_id)).zfill(5) + '_c' + sequence[-5:] \
                                                 + 's1_' + str(frame_num).zfill(5) + '_01'
-                                image.save(self.output_folder + market1501_id + '.jpg')
+                                image.save(os.path.join(self.output_folder, market1501_id + '.jpg'))
 
                 max_target_id += int(target_id)
 
@@ -147,12 +147,12 @@ if __name__ == '__main__':
         print('Cannot find path to DETRAC annotations.')
         sys.exit()
 
-    output_train = args.output_train
-    if not os.path.exists(output_train):
-        os.makedirs(output_train)
+    output_folder = f"{args.output_train}-o{args.occlusion_threshold:.1f}-t{args.truncation_threshold:.1f}-{args.size}x{args.size}"
+    if not os.path.exists(output_folder):
+        os.makedirs(output_folder)
 
-    if not os.access(output_train, os.W_OK):
-        print('{} folder is not writeable.'.format(output_train))
+    if not os.access(output_folder, os.W_OK):
+        print('{} folder is not writeable.'.format(output_folder))
 
     occlusion_threshold = args.occlusion_threshold
     truncation_threshold = args.truncation_threshold
@@ -160,7 +160,7 @@ if __name__ == '__main__':
 
     create_dataset = CreateDataset(DETRAC_images,
                                    DETRAC_annots,
-                                   output_train,
+                                   output_folder,
                                    occlusion_threshold,
                                    truncation_threshold,
                                    occurrences)
