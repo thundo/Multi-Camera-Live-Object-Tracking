@@ -4,6 +4,7 @@ from PIL import Image
 import os
 import random
 import argparse
+from tqdm import tqdm
 
 
 class CreateDataset:
@@ -73,7 +74,7 @@ class CreateDataset:
 
         def crop_sequence_images(self, sequences):
             max_target_id = 0
-            for sequence in sequences:
+            for sequence in tqdm(sequences):
                 tree = ET.parse(self.root_annots + sequence + '_v3.xml')
                 root = tree.getroot()
                 frames = root.findall('frame')
