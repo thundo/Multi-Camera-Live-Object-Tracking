@@ -15,14 +15,15 @@ class CreateDataset:
                      output_folder,
                      occlusion_threshold,
                      truncation_threshold,
-                     occurrences):
+                     occurrences,
+                     size):
             self.root_images = DETRAC_images
             self.root_annots = DETRAC_annots
             self.output_folder = output_folder
             self.occ_thresh = occlusion_threshold
             self.trunc_thresh = truncation_threshold
             self.no_of_occurrences = occurrences
-            self.resize = (100, 100)
+            self.resize = size
 
         def get_sequences(self):
             sequences = [x[1] for x in os.walk(self.root_images)]
@@ -107,7 +108,7 @@ class CreateDataset:
                                 # truncation_ratio = attribute.attrib['truncation_ratio']
                                 image = Image.open(os.path.join(self.root_images + sequence, image_frame))
                                 image = image.crop(rectangle)
-                                image = image.resize(self.resize)
+                                image = image.resize((self.resize, self.resize))
                                 market1501_id = str(int(target_id) + int(max_target_id)).zfill(5) + '_c' + sequence[-5:] \
                                                 + 's1_' + str(frame_num).zfill(5) + '_01'
                                 image.save(os.path.join(self.output_folder, market1501_id + '.jpg'))
@@ -135,6 +136,9 @@ if __name__ == '__main__':
     parser.add_argument("--occurrences",
                         help='Number of occurrences of each sequence of vehicles.',
                         default=100, type=int)
+    parser.add_argument("--size",
+                        help='Crop resolution.',
+                        default=100, type=int)
     args = parser.parse_args()
     
     DETRAC_images = args.DETRAC_images
@@ -157,13 +161,15 @@ if __name__ == '__main__':
     occlusion_threshold = args.occlusion_threshold
     truncation_threshold = args.truncation_threshold
     occurrences = args.occurrences
+    size = args.size
 
     create_dataset = CreateDataset(DETRAC_images,
                                    DETRAC_annots,
                                    output_folder,
                                    occlusion_threshold,
                                    truncation_threshold,
-                                   occurrences)
+                                   occurrences,
+                                   size)
 
     sequences = create_dataset.get_sequences()
 
